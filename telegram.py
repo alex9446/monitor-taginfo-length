@@ -1,3 +1,4 @@
+import re
 from os import environ
 
 from requests import get, post
@@ -23,8 +24,8 @@ def get_description():
     return _bot_get('/getMyDescription', 'description')
 
 
-def _bot_post(endpoint: str, key: str, value: str) -> None:
-    post(f'{base}{endpoint}', json={key: value})
+def _bot_post(endpoint: str, key: str, value: str) -> bool:
+    return post(f'{base}{endpoint}', json={key: value}).ok
 
 
 def set_description(value: str):
@@ -35,5 +36,11 @@ def broadcast_message(text: str) -> None:
     for chat in chat_ids:
         post(f'{base}/sendMessage', json={
             'chat_id': chat,
-            'text': text
+            'text': text,
+            'parse_mode': 'MarkdownV2'
         })
+
+
+def escape_markdown_v2(text: str) -> str:
+    escape_chars = r'_*[]()~`>#+-=|{}.!\\'
+    return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', text)
