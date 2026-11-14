@@ -15,15 +15,15 @@ saved_tags = {parts[0]: parts[1] for line in description.splitlines()
 
 monitored_tags = [(tag, get_tag_values(tag)) for tag in monitored_tags_raw]
 hashed_tags = [(key, hash_values(values)) for key, values in monitored_tags]
+hashed_tags_raw = '\n'.join(f'{key}={hash}' for key, hash in hashed_tags)
 
 for key, hash in hashed_tags:
     escaped_key = escape_markdown_v2(key)
     if key not in saved_tags:
         broadcast_message(f'new tag: *{escaped_key}*')
+        set_description(hashed_tags_raw)
     elif hash != saved_tags[key]:
         broadcast_message(f'edited tag: *{escaped_key}*')
-
-hashed_tags_raw = '\n'.join(f'{key}={hash}' for key, hash in hashed_tags)
-set_description(hashed_tags_raw)
+        set_description(hashed_tags_raw)
 
 send_heartbeat()
